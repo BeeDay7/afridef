@@ -1,0 +1,68 @@
+# AfriDef -- default experiment configuration
+# Hyperparameters fixed at sensible defaults from prior published work.
+# Tune only the marked items via held-out grid (see paper §4).
+
+seed: 0
+
+data:
+  primary: paysim                 # paysim | ieee_cis
+  paysim_path: data/paysim.csv
+  ieee_cis_path: data/ieee_cis/
+  test_temporal_split: 0.2
+  val_temporal_split: 0.1
+
+graph:
+  agent_node_field: nameDest      # PaySim convention
+  customer_node_field: nameOrig
+  edge_features: [amount, type, oldbalanceOrg, newbalanceOrig]
+  add_self_loops: true
+
+# --- Layer 1: WGAN-GP augmentation ---------------------------------------
+wgan:
+  hidden_dim: 128
+  noise_dim: 64
+  n_critic: 5
+  gp_weight: 10.0
+  lr: 1.0e-4
+  betas: [0.5, 0.9]
+  epochs: 300
+  oversample_ratio: 5.0           # synthetic-fraud / real-fraud ratio
+
+# --- Layer 2: GNN classifier ---------------------------------------------
+gnn:
+  backbone: graphsage             # graphsage | gat
+  hidden_dim: 128
+  num_layers: 2
+  dropout: 0.5
+  lr: 1.0e-3
+  weight_decay: 5.0e-4
+  epochs: 100
+  batch_size: 1024
+
+# --- Layer 2: TRADES adversarial training --------------------------------
+trades:
+  beta: 6.0                       # TUNE on held-out grid
+  epsilon: 0.1
+  pgd_steps: 7
+  pgd_step_size: 0.02
+
+# --- Layer 3: Stackelberg outer loop -------------------------------------
+stackelberg:
+  attacker_algo: ppo
+  attacker_lr: 3.0e-4             # TUNE
+  attacker_episodes: 200
+  defender_threshold_grid: [0.05, 0.1, 0.2, 0.3, 0.4, 0.5]
+  outer_iterations: 20
+  convergence_tol: 1.0e-3
+
+# --- Evaluation ----------------------------------------------------------
+eval:
+  fpr_targets: [0.005, 0.01, 0.02]
+  adv_epsilons: [0.05, 0.1, 0.2]
+  drift_window: 50000             # transactions per temporal slice
+  bootstrap_iters: 1000
+
+logging:
+  out_dir: results/
+  wandb_project: afridef
+  wandb_enabled: false

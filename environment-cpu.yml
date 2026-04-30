@@ -1,0 +1,47 @@
+name: afridef
+channels:
+  - pytorch
+  - pyg
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - numpy
+  - pandas
+  - scipy
+  - scikit-learn
+  - matplotlib
+  - seaborn
+  - jupyterlab
+  - pyyaml
+  - tqdm
+  - pytorch=2.2.2              # pinned: SB3 2.5+ would force-upgrade us
+  - cpuonly                    # CPU build of PyTorch — no NVIDIA needed
+  - torchvision=0.17.2         # must match torch 2.2.2
+  - pyg
+  - pip:
+      # NOTE: torch-scatter and torch-sparse are NOT listed here on purpose.
+      # They fail to build under conda's pip subprocess (build isolation
+      # can't see the conda-installed torch). After this env is created,
+      # install them separately from the PyG pre-built wheel index:
+      #
+      #   conda activate afridef
+      #   pip install torch-scatter torch-sparse \
+      #       --find-links https://data.pyg.org/whl/torch-2.2.0+cpu.html
+      #
+      # PyG 2.7+ works without them for our GraphSAGE/GAT use-case anyway.
+      - torch-geometric
+      - xgboost
+      - lightgbm
+      - imbalanced-learn
+      - networkx
+      - tensorboard
+      - wandb
+      - hydra-core
+      - omegaconf
+      - sdv          # for CTGAN baseline
+      - kaggle       # for dataset download
+      - stable-baselines3==2.4.0   # last version compatible with torch 2.2.x;
+                                   # newer SB3 (>=2.5) requires torch>=2.3 and
+                                   # would force-upgrade torch, breaking the env.

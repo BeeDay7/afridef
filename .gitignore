@@ -1,0 +1,22 @@
+# Data and results -- never commit
+data/*
+!data/README.md
+results/
+checkpoints/
+wandb/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# Editors
+.vscode/
+.idea/
+.DS_Store
+
+# Notebook
+.ipynb_checkpoints/

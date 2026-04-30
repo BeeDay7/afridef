@@ -1,0 +1,36 @@
+name: afridef
+channels:
+  - pytorch
+  - pyg
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - numpy
+  - pandas
+  - scipy
+  - scikit-learn
+  - matplotlib
+  - seaborn
+  - jupyterlab
+  - pyyaml
+  - tqdm
+  - pytorch=2.2
+  - pytorch-cuda=12.1
+  - torchvision
+  - pyg
+  - pip:
+      - torch-geometric
+      - torch-scatter
+      - torch-sparse
+      - xgboost
+      - lightgbm
+      - imbalanced-learn
+      - networkx
+      - tensorboard
+      - wandb
+      - hydra-core
+      - omegaconf
+      - sdv          # for CTGAN baseline
+      - kaggle       # for dataset download
