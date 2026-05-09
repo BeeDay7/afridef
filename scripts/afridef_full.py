@@ -278,14 +278,15 @@ def build_graph(df, n_train, n_val, n_test, device, synth_edge_attr=None):
         d_synth = torch.tensor(
             np.random.choice(N, n_synth), dtype=torch.long, device=device)
         syn_ea  = synth_edge_attr.to(device)
-        syn_y   = torch.ones(n_synth, dtype=torch.float, device=device)
-        syn_tm  = torch.ones(n_synth, dtype=torch.bool, device=device)
-        syn_vm  = torch.zeros(n_synth, dtype=torch.bool, device=device)
-        syn_xm  = torch.zeros(n_synth, dtype=torch.bool, device=device)
+        syn_y   = torch.ones(n_synth, dtype=torch.float)   # CPU — moved to device at end
+        syn_tm  = torch.ones(n_synth, dtype=torch.bool)
+        syn_vm  = torch.zeros(n_synth, dtype=torch.bool)
+        syn_xm  = torch.zeros(n_synth, dtype=torch.bool)
 
-        ei         = torch.cat([ei, torch.stack([s_synth, d_synth])], dim=1)
-        edge_attr  = torch.cat([edge_attr, syn_ea], dim=0)
-        y          = torch.cat([y,  syn_y],  dim=0)
+        # All mask/label tensors on CPU until the final .to(device) at the end
+        ei         = torch.cat([ei.cpu(), torch.stack([s_synth.cpu(), d_synth.cpu()])], dim=1)
+        edge_attr  = torch.cat([edge_attr.cpu(), syn_ea.cpu()], dim=0)
+        y          = torch.cat([y.cpu(),  syn_y],  dim=0)
         tm         = torch.cat([tm, syn_tm], dim=0)
         vm         = torch.cat([vm, syn_vm], dim=0)
         xm         = torch.cat([xm, syn_xm], dim=0)
@@ -298,8 +299,13 @@ def build_graph(df, n_train, n_val, n_test, device, synth_edge_attr=None):
 
     class Data: pass
     d = Data()
-    d.x, d.edge_index, d.edge_attr, d.y = x, ei, edge_attr, y
-    d.train_mask, d.val_mask, d.test_mask = tm.to(device), vm.to(device), xm.to(device)
+    d.x          = x.to(device)
+    d.edge_index = ei.to(device)
+    d.edge_attr  = edge_attr.to(device)
+    d.y          = y.to(device)
+    d.train_mask = tm.to(device)
+    d.val_mask   = vm.to(device)
+    d.test_mask  = xm.to(device)
     return d
 
 # ── Evaluation ────────────────────────────────────────────────────────────────
